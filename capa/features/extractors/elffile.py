@@ -135,7 +135,9 @@ def extract_file_section_names(elf: ELFFile, **kwargs):
 
 
 def extract_file_strings(buf, **kwargs):
-    yield from capa.features.extractors.common.extract_file_strings(buf)
+    yield from capa.features.extractors.common.extract_file_strings(
+        buf, min_len=capa.features.extractors.strings.DEFAULT_LENGTH
+    )
 
 
 def extract_file_os(elf: ELFFile, buf, **kwargs):

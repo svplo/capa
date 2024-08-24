@@ -97,7 +97,9 @@ def extract_file_section_names(vw, **kwargs) -> Iterator[Tuple[Feature, Address]
 
 
 def extract_file_strings(buf, **kwargs) -> Iterator[Tuple[Feature, Address]]:
-    yield from capa.features.extractors.common.extract_file_strings(buf)
+    yield from capa.features.extractors.common.extract_file_strings(
+        buf, min_len=capa.features.extractors.strings.DEFAULT_LENGTH
+    )
 
 
 def extract_file_function_names(vw, **kwargs) -> Iterator[Tuple[Feature, Address]]:

@@ -132,11 +132,15 @@ def extract_file_strings() -> Iterator[Tuple[Feature, Address]]:
 
         p_bytes = capa.features.extractors.ghidra.helpers.get_block_bytes(block)
 
-        for s in capa.features.extractors.strings.extract_ascii_strings(p_bytes):
+        for s in capa.features.extractors.strings.extract_ascii_strings(
+            p_bytes, min_len=capa.features.extractors.strings.DEFAULT_LENGTH
+        ):
             offset = block.getStart().getOffset() + s.offset
             yield String(s.s), FileOffsetAddress(offset)
 
-        for s in capa.features.extractors.strings.extract_unicode_strings(p_bytes):
+        for s in capa.features.extractors.strings.extract_unicode_strings(
+            p_bytes, min_len=capa.features.extractors.strings.DEFAULT_LENGTH
+        ):
             offset = block.getStart().getOffset() + s.offset
             yield String(s.s), FileOffsetAddress(offset)
 

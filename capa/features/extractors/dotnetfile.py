@@ -135,7 +135,9 @@ def extract_file_arch(pe: dnfile.dnPE, **kwargs) -> Iterator[Tuple[Arch, Address
 
 
 def extract_file_strings(pe: dnfile.dnPE, **kwargs) -> Iterator[Tuple[String, Address]]:
-    yield from capa.features.extractors.common.extract_file_strings(pe.__data__)
+    yield from capa.features.extractors.common.extract_file_strings(
+        pe.__data__, min_len=capa.features.extractors.strings.DEFAULT_LENGTH
+    )
 
 
 def extract_file_mixed_mode_characteristic_features(

@@ -15,8 +15,9 @@ from collections import namedtuple
 ASCII_BYTE = r" !\"#\$%&\'\(\)\*\+,-\./0123456789:;<=>\?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\]\^_`abcdefghijklmnopqrstuvwxyz\{\|\}\\\~\t".encode(
     "ascii"
 )
-ASCII_RE_4 = re.compile(b"([%s]{%d,})" % (ASCII_BYTE, 4))
-UNICODE_RE_4 = re.compile(b"((?:[%s]\x00){%d,})" % (ASCII_BYTE, 4))
+DEFAULT_LENGTH = 4
+ASCII_RE_DEFAULT = re.compile(b"([%s]{%d,})" % (ASCII_BYTE, DEFAULT_LENGTH))
+UNICODE_RE_DEFAULT = re.compile(b"((?:[%s]\x00){%d,})" % (ASCII_BYTE, DEFAULT_LENGTH))
 REPEATS = [b"A", b"\x00", b"\xfe", b"\xff"]
 SLICE_SIZE = 4096
 
@@ -32,14 +33,14 @@ def buf_filled_with(buf, character):
     return True
 
 
-def extract_ascii_strings(buf, n=4):
+def extract_ascii_strings(buf, min_len=DEFAULT_LENGTH):
     """
     Extract ASCII strings from the given binary data.
 
     :param buf: A bytestring.
     :type buf: str
-    :param n: The minimum length of strings to extract.
-    :type n: int
+    :param min_len: The minimum length of strings to extract.
+    :type min_len: int
     :rtype: Sequence[String]
     """
 
@@ -50,23 +51,23 @@ def extract_ascii_strings(buf, n=4):
         return
 
     r = None
-    if n == 4:
-        r = ASCII_RE_4
+    if min_len == DEFAULT_LENGTH:
+        r = ASCII_RE_DEFAULT
     else:
-        reg = b"([%s]{%d,})" % (ASCII_BYTE, n)
+        reg = b"([%s]{%d,})" % (ASCII_BYTE, min_len)
         r = re.compile(reg)
     for match in r.finditer(buf):
         yield String(match.group().decode("ascii"), match.start())
 
 
-def extract_unicode_strings(buf, n=4):
+def extract_unicode_strings(buf, min_len=DEFAULT_LENGTH):
     """
     Extract naive UTF-16 strings from the given binary data.
 
     :param buf: A bytestring.
     :type buf: str
-    :param n: The minimum length of strings to extract.
-    :type n: int
+    :param min_len: The minimum length of strings to extract.
+    :type min_len: int
     :rtype: Sequence[String]
     """
 
@@ -76,10 +77,10 @@ def extract_unicode_strings(buf, n=4):
     if (buf[0] in REPEATS) and buf_filled_with(buf, buf[0]):
         return
 
-    if n == 4:
-        r = UNICODE_RE_4
+    if min_len == DEFAULT_LENGTH:
+        r = UNICODE_RE_DEFAULT
     else:
-        reg = b"((?:[%s]\x00){%d,})" % (ASCII_BYTE, n)
+        reg = b"((?:[%s]\x00){%d,})" % (ASCII_BYTE, min_len)
         r = re.compile(reg)
     for match in r.finditer(buf):
         with contextlib.suppress(UnicodeDecodeError):
